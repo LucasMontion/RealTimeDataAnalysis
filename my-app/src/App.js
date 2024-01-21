@@ -8,7 +8,7 @@ async function getNumber() {
     return response.data;
   } catch (error) {
     console.log(error);
-    return null; // or handle the error appropriately
+    return null;
   }
 }
 
@@ -36,7 +36,7 @@ function App() {
 
   return (
     <>
-      <div style={display="flex"}>
+      <div style={{ display: 'block', flexDirection: 'column' }}>
         <Plot
           data={[
             {
@@ -63,6 +63,7 @@ function App() {
         ]}
         layout={{ width: 1020, height: 240, title: 'A Fancy Plot' }}
         />
+        <div class="flourish-embed flourish-bar-chart-race" data-src="visualisation/16520746"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
       </div>
     </>
    
