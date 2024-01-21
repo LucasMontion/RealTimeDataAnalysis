@@ -88,94 +88,93 @@ app.layout = html.Div([
         dcc.RadioItems(
             id='exchange',
             options=['Exchange 1', 'Exchange 2', 'Exchange 3'],
-            value='Exchange 1',
+            value='Exchange 2',
         ),
-        dcc.Loading(dcc.Graph(id="bubble_graph"), type="cube")
+        dcc.Loading(dcc.Graph(id="bubble_graph"))
     ])
 ])
 
-@callback(
-    Output('graph1', 'figure'),
-    Output('index1', 'data'),
-    Input('interval', 'n_intervals'),
-    Input('symbol1', 'value'),
-    State('index1', 'data')
-    )
-def update_1(n_intervals, symbol, ind):
-    s = order_req_1.query(f"Symbol == '{symbol}'")
-    global curr_time
-    curr_time = curr_time + timedelta(milliseconds=200)
-    while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
-        ind += 1
-    s["MA"] = s["OrderPrice"].rolling(5).mean()
-    fig = make_subplots(rows=2, cols=1)
-    fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["OrderPrice"]), row=1, col=1)
-    fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["MA"]), row=2, col=1)
+# @callback(
+#     Output('graph1', 'figure'),
+#     Output('index1', 'data'),
+#     Input('interval', 'n_intervals'),
+#     Input('symbol1', 'value'),
+#     State('index1', 'data')
+#     )
+# def update_1(n_intervals, symbol, ind):
+#     s = order_req_1.query(f"Symbol == '{symbol}'")
+#     global curr_time
+#     curr_time = curr_time + timedelta(milliseconds=200)
+#     while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
+#         ind += 1
+#     s["MA"] = s["OrderPrice"].rolling(5).mean()
+#     fig = make_subplots(rows=2, cols=1)
+#     fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["OrderPrice"]), row=1, col=1)
+#     fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["MA"]), row=2, col=1)
 
-    return fig, ind
+#     return fig, ind
 
-@callback(
-    Output('graph2', 'figure'),
-    Output('index2', 'data'),
-    Input('interval', 'n_intervals'),
-    Input('symbol2', 'value'),
-    State('index2', 'data')
-    )
-def update_2(n_intervals, symbol, ind):
-    s = order_req_2.query(f"Symbol == '{symbol}'")
-    global curr_time
-    curr_time = curr_time + timedelta(milliseconds=200)
+# @callback(
+#     Output('graph2', 'figure'),
+#     Output('index2', 'data'),
+#     Input('interval', 'n_intervals'),
+#     Input('symbol2', 'value'),
+#     State('index2', 'data')
+#     )
+# def update_2(n_intervals, symbol, ind):
+#     s = order_req_2.query(f"Symbol == '{symbol}'")
+#     global curr_time
+#     curr_time = curr_time + timedelta(milliseconds=200)
     
-    s["MA"] = s["OrderPrice"].rolling(5).mean()
-    while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
-        ind += 1
-    fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
-                     labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
-    #fig = px.plot(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time])
+#     s["MA"] = s["OrderPrice"].rolling(5).mean()
+#     while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
+#         ind += 1
+#     fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
+#                      labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
+#     #fig = px.plot(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time])
 
-    return fig, ind
+#     return fig, ind
 
-@callback(
-    Output('graph3', 'figure'),
-    Output('index3', 'data'),
-    Input('interval', 'n_intervals'),
-    Input('symbol3', 'value'),
-    State('index3', 'data')
-    )
-def update_3(n_intervals, symbol, ind):
-    s = order_req_3.query(f"Symbol == '{symbol}'")
-    global curr_time
-    curr_time = curr_time + timedelta(milliseconds=200)    
-    while(ind < len(s)  and s.iloc[ind].TimeStampEpoch < curr_time):
-        ind += 1
-    fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
-                     labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
+# @callback(
+#     Output('graph3', 'figure'),
+#     Output('index3', 'data'),
+#     Input('interval', 'n_intervals'),
+#     Input('symbol3', 'value'),
+#     State('index3', 'data')
+#     )
+# def update_3(n_intervals, symbol, ind):
+#     s = order_req_3.query(f"Symbol == '{symbol}'")
+#     global curr_time
+#     curr_time = curr_time + timedelta(milliseconds=200)    
+#     while(ind < len(s)  and s.iloc[ind].TimeStampEpoch < curr_time):
+#         ind += 1
+#     fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
+#                      labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
 
-    return fig, ind
+#     return fig, ind
 
 @callback(
     Output('bubble_graph', 'figure'), 
     Input('exchange', 'value')
 )
 def bubble(ex):
-    df = order_dict[ex[-1]]
-    print(df.head())
-    df = df.copy()
-    df = df.sort_values(by=['Symbol']).reset_index(drop=True)
-    df['std'] = df.groupby('Symbol')['OrderPrice'].expanding().std().reset_index(drop=True)
-    df['max_values'] = df.groupby('Symbol')['OrderPrice'].expanding().max().reset_index(drop=True)
-    df['min_values'] = df.groupby('Symbol')['OrderPrice'].expanding().min().reset_index(drop=True)
-    df['max_min_difference'] = df['max_values'] - df['min_values']
-    df['mean_price'] = df.groupby('Symbol')['OrderPrice'].expanding().mean().reset_index(drop=True)
+    df = pd.read_csv("nbc_data/e2_cpp.csv")
+    #df.index = np.arange(len(df))
     
-    print(df.head())
-
-    animations = {
-        'Variance': px.scatter(df, x = "max_min_difference", y = "std", animation_group="Symbol", size = 'mean_price', 
-                               animation_frame = "TimeStampEpoch", hover_name = "Symbol", log_x = True 
-                               )
-    }
+    print(df.dtypes)
+    df.columns = ["Symbol","Time", "std", "mean", "max", "min", "spread", "wtv"]
+   
+    #df["TimeStamp"] = pd.to_datetime(df["Time"])
     
-    return animations
+    #print(df)
+    fig = px.scatter(df, x = "Time", y = "max", 
+                     animation_group="Symbol", 
+                     animation_frame="Time", 
+                     size="max",
+                     #range_x=[df["spread"].min(), df["spread"].max()],
+                     range_y=[df["max"].min(), df["max"].max()],
+                     log_x=False)
+    
+    return fig
 
 app.run_server(debug=True)
