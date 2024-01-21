@@ -91,6 +91,9 @@ app.layout = html.Div([
             value='Exchange 2',
         ),
         dcc.Loading(dcc.Graph(id="bubble_graph"))
+    ]),
+    html.Div([
+        html.Iframe(src="https://public.flourish.studio/visualisation/16520746/embed", width="100%", height="600")
     ])
 ])
 
@@ -111,7 +114,10 @@ app.layout = html.Div([
 #     fig = make_subplots(rows=2, cols=1)
 #     fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["OrderPrice"]), row=1, col=1)
 #     fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["MA"]), row=2, col=1)
+#     fig.update_traces(name ='Price')
+#     fig.update_traces(name='Moving Average', row=2, col=1)
 
+    
 #     return fig, ind
 
 # @callback(
