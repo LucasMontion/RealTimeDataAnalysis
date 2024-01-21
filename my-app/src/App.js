@@ -3,13 +3,7 @@ import Plot from 'react-plotly.js';
 import axios from 'axios';
 
 async function getNumber() {
-  try {
-    const response = await axios.get('http://127.0.0.1:5000/');
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  return [1, 2, 3]
 }
 
 function App() {
@@ -22,21 +16,21 @@ function App() {
   useEffect(() => {
     const intervalId = setInterval(async () => {
       let num = await getNumber();
-      console.log(num)
-      setY((prevY) => [...prevY, num]); // Append a random number between 0 and 10
+      setY((prevY) => [...prevY, ...num]);
       setX((prevX) => [...prevX, prevX[prevX.length - 1] + 1])
 
       let num2 = await getNumber();
-      setY2((prevY2) => [...prevY2, num2]); // Append a random number between 0 and 10
+      setY2((prevY2) => [...prevY2, ...num]);
       setX2((prevX2) => [...prevX2, prevX2[prevX2.length - 1] + 1])
-    }, 10); // Adjust the interval (in milliseconds) according to your needs
-    // console.log(y)
+    }, 1000); // Adjust the interval (in milliseconds) according to your needs
     return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, [y]);
+  }, []);
 
   return (
-    <>
       <div style={{ display: 'block', flexDirection: 'column' }}>
+        <div className="flourish-embed flourish-bar-chart-race" data-src="visualisation/16520746">
+          <script src="https://public.flourish.studio/resources/embed.js"></script>
+        </div>
         <Plot
           data={[
             {
@@ -46,9 +40,9 @@ function App() {
               mode: 'lines+markers',
               marker: { color: 'red' },
             },
-            { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
+            { type: 'bar', x: x, y: y },
           ]}
-          layout={{ width: 320, height: 240, title: 'A Fancy Plot' }}
+          layout={{ width: 1020, height: 340, title: 'A Fancy Plot' }}
         />
         <Plot
         data={[
@@ -59,16 +53,11 @@ function App() {
             mode: 'lines+markers',
             marker: { color: 'red' },
           },
-          { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
+          { type: 'bar', x: x2, y: y2 },
         ]}
-        layout={{ width: 1020, height: 240, title: 'A Fancy Plot' }}
+        layout={{ width: 1020, height: 340, title: 'A Fancy Plot' }}
         />
-        <div class="flourish-embed flourish-bar-chart-race" data-src="visualisation/16520746"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
-      </div>
-    </>
-   
-
-    
+      </div>   
   );
 }
 
