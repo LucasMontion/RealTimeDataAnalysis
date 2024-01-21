@@ -33,13 +33,6 @@ order_dict = {'1': order_req_1, '2':order_req_2, '3': order_req_3}
 sym_dict = {'1': sym_1, '2': sym_2, '3': sym_3}
 cancel_dict = {'1': cancel_1, '2': cancel_2, '3': cancel_3}
 
-sample_price = order_req_1[order_req_1["Symbol"] == sym_1[0]]
-
-print(sample_price.head().to_json())
-
-sample_price['MA'] = sample_price["OrderPrice"].rolling(window=5).mean() # moving average
-print(sample_price['MA'].head(10))
-
 
 app = Flask(__name__)
 
@@ -54,7 +47,7 @@ def start_server():
     global delta
     delta = int(time.time()) - start
     print("delta ", delta)
-    return str(delta)
+    return str(start)
 
 @app.route('/price_data/<exchange>/<symbol>/<prev_time>')
 def upload_data(exchange, symbol, prev_time):
@@ -79,6 +72,8 @@ def upload_data(exchange, symbol, prev_time):
     
     return [s["TimeStampEpoch"].to_list(), s["OrderPrice"].to_list(), len(volume)]
 
+# @app.route('/stat_data/')
+# def get_data():
 
 if __name__ == '__main__':
     global delta
