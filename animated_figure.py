@@ -1,4 +1,4 @@
-from dash import Dash, dcc, html, Input, Output, callback
+from dash import Dash, dcc, html, Input, Output, callback, State
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -14,6 +14,9 @@ total_df = pd.concat([ex_1, ex_2, ex_3])
 
 start_time = datetime(2024, 1, 5, 9, 29, 59)
 end_time = datetime(2024, 1, 5, 9, 32)
+
+global curr_time 
+curr_time = datetime(2024, 1, 5, 9, 29, 59)
 
 print(start_time+timedelta(0, 1))
 
@@ -93,24 +96,34 @@ init = 1
 #             ]))])
 
 #fig.show()
-td = 100
+td = 75
 app = Dash(__name__)
 
 app.layout = html.Div([
     dcc.Graph(
         id='graph'),
-    dcc.Interval(id='interval', interval=td, max_intervals=-1)
+    dcc.Interval(id='interval', interval=td, max_intervals=-1),
+    dcc.Store(id='index', data=0),
+    dcc.Store(id='curr_time', data=start_time)
 ])
 
 @callback(
     Output('graph', 'figure'),
-    Input('interval', 'n_intervals'))
-def update(n_intervals):
-    filtered_df = s[s["TimeStampEpoch"] <= start_time+timedelta(milliseconds=n_intervals*td)]
-    fig = px.scatter(filtered_df, x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(start_time+timedelta(milliseconds=n_intervals*td)))
-    if(n_intervals==len(s)):
-        print(n_intervals)
-    return fig
+    Output('index', 'data'),
+    #Output('curr_time', 'data'),
+    Input('interval', 'n_intervals'),
+    State('index', 'data')
+    #State('curr_time', 'data')
+    )
+def update(n_intervals, ind):
+    #filtered_df = s[s["TimeStampEpoch"] <= start_time+timedelta(milliseconds=n_intervals*td)]
+    curr_time = start_time + timedelta(milliseconds=td*n_intervals)
+    #print(curr_time)
+    while(s.iloc[ind].TimeStampEpoch < curr_time):
+        ind += 1
+    fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time))
+
+    return fig, ind
 
 
 app.run_server(debug=True)
