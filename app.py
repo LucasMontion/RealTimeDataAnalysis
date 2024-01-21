@@ -36,23 +36,22 @@ print(sample_price.head().to_json())
 
 #sample_price['MA'] = sample_price["OrderPrice"].rolling(window=5).mean() # moving average
 
-global start 
-#global delta
 
 app = Flask(__name__)
 
 CORS(app)
 @app.route('/')
 def start_server():
-    start = 1704464880
+    start = 1704464880 # 01/05/2024
     global delta
     delta = int(time.time()) - start
-    print(delta)
-    return str(start)
+    print("delta ", delta)
+    return str(delta)
 
 
 @app.route('/<prev_time>')
 def upload_data(prev_time):
+    global delta
     prev_time = datetime.datetime.fromtimestamp(int(prev_time))
     curr_time = datetime.datetime.fromtimestamp(int(time.time()) - delta)
     s = sample_price.query(f"TimeStampEpoch > '{prev_time}' and TimeStampEpoch <= '{curr_time}'")
