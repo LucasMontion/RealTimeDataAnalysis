@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_cors import CORS
 import pandas as pd
-import polars as pl
 import datetime
+import time
 
 import random
 
@@ -32,23 +32,33 @@ order_ac_3 = ex_3.query("MessageType == 'NewOrderAcknowledged'")
 
 sample_price = order_req_1[order_req_1["Symbol"] == sym_1[0]]
 
-sample_price['MA'] = sample_price["OrderPrice"].rolling(window=5).mean() # moving average
+print(sample_price.head().to_json())
+
+#sample_price['MA'] = sample_price["OrderPrice"].rolling(window=5).mean() # moving average
 
 global start 
-global delta
+#global delta
 
 app = Flask(__name__)
 
 CORS(app)
-@app.route('/<start_time>')
-def start_server(start_time):
-    start = start_time
-    delta = datetime.datetime.now() - start
-    return start
-
+@app.route('/')
+def start_server():
+    start = 1704464880
+    global delta
+    delta = int(time.time()) - start
+    print(delta)
+    return str(start)
 
 
 @app.route('/<prev_time>')
 def upload_data(prev_time):
-    curr_time = datetime.datetime.now() - delta
-    return sample_price.query(f"{prev_time}<TimeStampEpoch <= {curr_time}").to_dict()    
+    prev_time = datetime.datetime.fromtimestamp(int(prev_time))
+    curr_time = datetime.datetime.fromtimestamp(int(time.time()) - delta)
+    s = sample_price.query(f"TimeStampEpoch > '{prev_time}' and TimeStampEpoch <= '{curr_time}'")
+    return [s["TimeStampEpoch"].to_list(), s["OrderPrice"].to_list()]
+
+if __name__ == '__main__':
+    global delta
+    app.debug = True
+    app.run()
