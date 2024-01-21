@@ -40,10 +40,10 @@ function App() {
       setY((prevY) => [...prevY, num]); // Append a random number between 0 and 10
       setX((prevX) => [...prevX, prevX[prevX.length - 1] + 1])
 
-      
-      setAvrg((prevAvrg) => [...prevAvrg, ((data1) / (x[x.length-1] +1))]); // Calculate average
-      setData1((data1 + num));      
-      
+
+      setAvrg((prevAvrg) => [...prevAvrg, ((data1) / (x[x.length - 1] + 1))]); // Calculate average
+      setData1((data1 + num));
+
 
       setAnimationFrame(prevFrame => prevFrame + 1);
 
@@ -69,7 +69,7 @@ function App() {
 
   return (
     <>
-      <div style={{ display: 'block', flexDirection: 'column' }}>
+      <div style={{ display: 'block', flexDirection: 'column', alignItems: "center" }}>
         <Plot
           data={[
             {
@@ -90,15 +90,32 @@ function App() {
               marker: { color: 'red' },
             },
           ]}
-          layout={{ width: 1020, height: 500, title: 'A Fancy Plot 1' , xaxis: {
-            title: 'Time',
-            range: xRange,  // Set the x-axis range
-          },
-          yaxis: { title: 'Price' },}}
+          layout={{
+            width: 1020, height: 500, title: 'A Fancy Plot 1', xaxis: {
+              title: 'Time',
+              range: xRange,  // Set the x-axis range
+              mirror: true,
+              ticks: 'outside',
+              showline: true,
+              linecolor: 'lightgrey',
+              gridcolor: 'lightgrey',
+              
+            },
+            yaxis: {
+              title: 'Price', log: true, 
+              mirror: true,
+              ticks: 'outside',
+              showline: true,
+              linecolor: 'lightgrey',
+              gridcolor: 'lightgrey'
+            },
+          }}
         />
-        <button onClick={toggleAverageVisibility}>
-        {showAverage ? 'Hide Average' : 'Show Average'}
-      </button>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: "center" }}>
+          <button onClick={toggleAverageVisibility}>
+            {showAverage ? 'Hide Average' : 'Show Average'}
+          </button>
+        </div>
         <Plot
           data={[
             {
@@ -111,7 +128,7 @@ function App() {
           ]}
           layout={{ width: 1020, height: 500, title: 'A Fancy Plot 2' }}
         />
-        
+
         {/* <div class="flourish-embed flourish-bar-chart-race" data-src="visualisation/16520746"><script src="https://public.flourish.studio/resources/embed.js"></script></div> */}
       </div>
     </>
