@@ -97,67 +97,68 @@ app.layout = html.Div([
     ])
 ])
 
-# @callback(
-#     Output('graph1', 'figure'),
-#     Output('index1', 'data'),
-#     Input('interval', 'n_intervals'),
-#     Input('symbol1', 'value'),
-#     State('index1', 'data')
-#     )
-# def update_1(n_intervals, symbol, ind):
-#     s = order_req_1.query(f"Symbol == '{symbol}'")
-#     global curr_time
-#     curr_time = curr_time + timedelta(milliseconds=200)
-#     while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
-#         ind += 1
-#     s["MA"] = s["OrderPrice"].rolling(5).mean()
-#     fig = make_subplots(rows=2, cols=1)
-#     fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["OrderPrice"]), row=1, col=1)
-#     fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["MA"]), row=2, col=1)
-#     fig.update_traces(name ='Price')
-#     fig.update_traces(name='Moving Average', row=2, col=1)
+@callback(
+    Output('graph1', 'figure'),
+    Output('index1', 'data'),
+    Input('interval', 'n_intervals'),
+    Input('symbol1', 'value'),
+    State('index1', 'data')
+    )
+def update_1(n_intervals, symbol, ind):
+    s = order_req_1.query(f"Symbol == '{symbol}'")
+    global curr_time
+    curr_time = curr_time + timedelta(milliseconds=200)
+    while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
+        ind += 1
+    s["MA"] = s["OrderPrice"].rolling(5).mean()
+    fig = make_subplots(rows=2, cols=1)
+    fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["OrderPrice"]), row=1, col=1)
+    fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["MA"]), row=2, col=1)
+    # fig.append_trace(go.Scatter(x=s[:ind]["TimeStampEpoch"], y=s[:ind]["standard_deviation"]), row=3, col=1)
+    fig.update_traces(name ='Price')
+    fig.update_traces(name='Moving Average', row=2, col=1)
 
     
-#     return fig, ind
+    return fig, ind
 
-# @callback(
-#     Output('graph2', 'figure'),
-#     Output('index2', 'data'),
-#     Input('interval', 'n_intervals'),
-#     Input('symbol2', 'value'),
-#     State('index2', 'data')
-#     )
-# def update_2(n_intervals, symbol, ind):
-#     s = order_req_2.query(f"Symbol == '{symbol}'")
-#     global curr_time
-#     curr_time = curr_time + timedelta(milliseconds=200)
+@callback(
+    Output('graph2', 'figure'),
+    Output('index2', 'data'),
+    Input('interval', 'n_intervals'),
+    Input('symbol2', 'value'),
+    State('index2', 'data')
+    )
+def update_2(n_intervals, symbol, ind):
+    s = order_req_2.query(f"Symbol == '{symbol}'")
+    global curr_time
+    curr_time = curr_time + timedelta(milliseconds=200)
     
-#     s["MA"] = s["OrderPrice"].rolling(5).mean()
-#     while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
-#         ind += 1
-#     fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
-#                      labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
-#     #fig = px.plot(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time])
+    s["MA"] = s["OrderPrice"].rolling(5).mean()
+    while(ind < len(s) and s.iloc[ind].TimeStampEpoch < curr_time):
+        ind += 1
+    fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
+                     labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
+    #fig = px.plot(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time])
 
-#     return fig, ind
+    return fig, ind
 
-# @callback(
-#     Output('graph3', 'figure'),
-#     Output('index3', 'data'),
-#     Input('interval', 'n_intervals'),
-#     Input('symbol3', 'value'),
-#     State('index3', 'data')
-#     )
-# def update_3(n_intervals, symbol, ind):
-#     s = order_req_3.query(f"Symbol == '{symbol}'")
-#     global curr_time
-#     curr_time = curr_time + timedelta(milliseconds=200)    
-#     while(ind < len(s)  and s.iloc[ind].TimeStampEpoch < curr_time):
-#         ind += 1
-#     fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
-#                      labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
+@callback(
+    Output('graph3', 'figure'),
+    Output('index3', 'data'),
+    Input('interval', 'n_intervals'),
+    Input('symbol3', 'value'),
+    State('index3', 'data')
+    )
+def update_3(n_intervals, symbol, ind):
+    s = order_req_3.query(f"Symbol == '{symbol}'")
+    global curr_time
+    curr_time = curr_time + timedelta(milliseconds=200)    
+    while(ind < len(s)  and s.iloc[ind].TimeStampEpoch < curr_time):
+        ind += 1
+    fig = px.scatter(s[:ind], x="TimeStampEpoch", y="OrderPrice", range_x=[start_time, end_time], title = str(curr_time),
+                     labels = {"OrderPrice":"Price", "TimeStampEpoch":"Time"})
 
-#     return fig, ind
+    return fig, ind
 
 @callback(
     Output('bubble_graph', 'figure'), 
@@ -165,21 +166,27 @@ app.layout = html.Div([
 )
 def bubble(ex):
     df = pd.read_csv("nbc_data/e2_cpp.csv")
-    #df.index = np.arange(len(df))
     
     print(df.dtypes)
     df.columns = ["Symbol","Time", "std", "mean", "max", "min", "spread", "wtv"]
+    df["exchange"] = pd.array([2 for i in range(len(df))])
    
-    #df["TimeStamp"] = pd.to_datetime(df["Time"])
-    
-    #print(df)
-    fig = px.scatter(df, x = "Time", y = "max", 
-                     animation_group="Symbol", 
+    df["TimeStamp"] = pd.to_datetime(df["Time"])
+    print(df)
+    fig = px.scatter(df, x="min", y="max", 
+                     color="exchange",
+                     animation_group="Symbol",
+                     hover_name="Symbol",
                      animation_frame="Time", 
-                     size="max",
-                     #range_x=[df["spread"].min(), df["spread"].max()],
+                     size="spread",
                      range_y=[df["max"].min(), df["max"].max()],
-                     log_x=False)
+    )
+    
+    # import plotly.express as px
+    # df = px.data.gapminder()
+    # px.scatter(df, x="gdpPercap", y="lifeExp", animation_frame="year", animation_group="country",
+    #         size="pop", color="continent", hover_name="country",
+    #         log_x=True, size_max=55, range_x=[100,100000], range_y=[25,90])
     
     return fig
 
