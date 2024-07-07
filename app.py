@@ -73,8 +73,8 @@ def get_symbol(symbol):
     elif (symb_temp != '' and symb_temp != symbol):
         symb_temp = symbol
         index_symb = 0
-        symb_start_time == next(iter(orders_df['TimeStamp']))
-    
+        symb_start_time = next(iter(orders_df['TimeStamp']))
+
 
     mask = orders_df['Symbol'] == symb_temp
     filtered_orders_df = orders_df[mask]
@@ -84,14 +84,12 @@ def get_symbol(symbol):
     
     if symb_start_time == next(iter(orders_df['TimeStamp'])):
         symb_start_time = next(iter(filt_reset_orders_df['TimeStamp']))
-        delta = datetime.timedelta(milliseconds=10)
+        delta = datetime.timedelta(milliseconds=100)
         symb_period_end = symb_start_time + delta
-        print('1')
     elif temp_index_symb == index_symb:
         symb_start_time = symb_period_end
-        delta = datetime.timedelta(milliseconds=10)
+        delta = datetime.timedelta(milliseconds=100)
         symb_period_end = symb_start_time + delta
-        print('2')
     
     in_range_timestamp = []
 
@@ -99,15 +97,32 @@ def get_symbol(symbol):
         timestamp = filt_reset_orders_df['TimeStamp'][i]
         if symb_start_time <= timestamp <= symb_period_end:
             order_price = filt_reset_orders_df['OrderPrice'][i]
-            in_range_timestamp.append((timestamp, order_price))
+            time_str = timestamp.strftime("%H:%M:%S.%f")[:-3]
+            in_range_timestamp.append([time_str, order_price])
 
-
-    print(in_range_timestamp)
     return in_range_timestamp
 
-@app.route('/get_symbols/<exchange>')
-def get_symbols(exchange):
-    return sym_dict[exchange]
+@app.route('/get_symbols/<Exchange>')
+def get_symbols(Exchange):
+    unique_symbols = set()
+
+    if(Exchange == 'Exchange1'):
+        for symbol in sym_dict['1']:
+            if symbol not in unique_symbols:
+                unique_symbols.add(symbol)
+    elif Exchange == 'Exchange2':
+        for symbol in sym_dict['2']:
+            if symbol not in unique_symbols:
+                unique_symbols.add(symbol)
+    elif Exchange == 'Exchange3':
+        for symbol in sym_dict['3']:
+            if symbol not in unique_symbols:
+                unique_symbols.add(symbol)
+    
+    # Convert the set back to a list
+    unique_symbols_list = list(unique_symbols)
+    
+    return unique_symbols_list
 
 @app.route('/set_time/')
 def start_server():
