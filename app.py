@@ -93,24 +93,7 @@ def get_symbol(symbol):
         symb_period_end = symb_start_time + delta
         print('2')
     
-
-    #print('symb time')
-    #print(filt_reset_orders_df['TimeStamp'][index_symb])
-    #print('time start')
-    #print(symb_start_time)
-    #print('time end')
-    #print(symb_period_end)
-    #print(symb_period_end > filt_reset_orders_df['TimeStamp'][index_symb] >= symb_start_time)
-    
     in_range_timestamp = []
-    inrange = True
-    #for k, v in filt_reset_orders_df.items():
-    #    for i in range(len(filt_reset_orders_df['TimeStamp'])):
-    #        if k == 'TimeStamp' and symb_start_time <= v[i] <= symb_period_end:
-    #            in_range_timestamp.append(v[i])
-    #            #this is only timestamp need to add orderprice
-    #        else:
-    #            inrange = False
 
     for i in range(len(filt_reset_orders_df['TimeStamp'])):
         timestamp = filt_reset_orders_df['TimeStamp'][i]
@@ -118,23 +101,6 @@ def get_symbol(symbol):
             order_price = filt_reset_orders_df['OrderPrice'][i]
             in_range_timestamp.append((timestamp, order_price))
 
-
-
-    if inrange:
-        temp_index_symb = index_symb
-        print('inrange')
-    else:
-        index_symb += 1
-        print('outrange')
-
-    #if index_symb < len(filt_reset_orders_df) and (symb_period_end > filt_reset_orders_df['TimeStamp'][index_symb] >= symb_start_time):
-    #    result = str(filt_reset_orders_df['OrderPrice'][index_symb])
-    #    index_symb += 1
-    #    print('3')
-    #else :
-    #    temp_index_symb = index_symb
-    #    result = ''
-    #    print('4')
 
     print(in_range_timestamp)
     return in_range_timestamp
