@@ -2,73 +2,124 @@ import React, { useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import axios from 'axios';
 
-async function getNumber() {
-  try {
-    const response = await axios.get('http://127.0.0.1:5000/');
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-}
+
 
 function App() {
-  const [y, setY] = useState([2, 6, 3]);
-  const [x, setX] = useState([1, 2, 3]);
+  const [y, setY] = useState([]);
+  const [x, setX] = useState([]);
+  const [tempx, setTempx] = useState(0);
+  const [isGreen, setIsGreen] = useState(false);
 
-  const [y2, setY2] = useState([2, 6, 3]);
-  const [x2, setX2] = useState([1, 2, 3]);
 
+  const ms = 100;
+
+  const [symbol, setSymbol] = useState('EDG7Z');
+  const [symbolList, setSymbolList] = useState([]);
+  let handleSymbolChange = (e) => {
+    setSymbol(e.target.value);
+    setY([]);
+    setX([]);
+  }
+  const [exchange, setExchange ] = useState('Exchange1');
+  let handleExchangeChange = (e) => {
+    setExchange(e.target.value);
+  }
   useEffect(() => {
-    const intervalId = setInterval(async () => {
-      let num = await getNumber();
-      console.log(num)
-      setY((prevY) => [...prevY, num]); // Append a random number between 0 and 10
-      setX((prevX) => [...prevX, prevX[prevX.length - 1] + 1])
+    async function getNumber() {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/get/' + symbol);
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    }
 
-      let num2 = await getNumber();
-      setY2((prevY2) => [...prevY2, num2]); // Append a random number between 0 and 10
-      setX2((prevX2) => [...prevX2, prevX2[prevX2.length - 1] + 1])
-    }, 10); // Adjust the interval (in milliseconds) according to your needs
-    // console.log(y)
+    async function getSymbols() {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/get_symbols/' + exchange);
+        setSymbolList(response.data);
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
+    }
+
+
+
+    const intervalId = setInterval(async () => {
+
+      var num = await getNumber();
+      if (num !== []) {
+        for (let n = 0; n < num.length; n++) {
+          setY((prevY) => [...prevY, num[n][1]]); // Append the order price of the symbol
+          if (num[n][1] > tempx) {
+            setIsGreen(true);
+          } else {
+            setIsGreen(false);
+          }
+          setTempx(num[n][1]);
+          setX((prevX) => [...prevX, num[n][0]]); // Move to next point on the chart        
+        }
+
+      }
+
+    }, ms); // Adjust the interval (in milliseconds) according to your needs
+
+    getSymbols();
     return () => clearInterval(intervalId); // Cleanup the interval on component unmount
-  }, [y]);
+  }, [y,symbol, tempx, x, exchange]);
+
 
   return (
     <>
-      <div style={{ display: 'block', flexDirection: 'column' }}>
-        <Plot
-          data={[
-            {
-              x: x,
-              y: y,
-              type: 'scatter',
-              mode: 'lines+markers',
-              marker: { color: 'red' },
-            },
-            { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
-          ]}
-          layout={{ width: 320, height: 240, title: 'A Fancy Plot' }}
-        />
-        <Plot
-        data={[
-          {
-            x: x2,
-            y: y2,
-            type: 'scatter',
-            mode: 'lines+markers',
-            marker: { color: 'red' },
-          },
-          { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
-        ]}
-        layout={{ width: 1020, height: 240, title: 'A Fancy Plot' }}
-        />
-        <div class="flourish-embed flourish-bar-chart-race" data-src="visualisation/16520746"><script src="https://public.flourish.studio/resources/embed.js"></script></div>
+      <div style={{ display: 'block', flexDirection: 'column', backgroundColor: '#212121', margin: 0 }}>
+        <h1 style={{ color: 'white', fontFamily: 'verdana', textAlign: 'center', paddingTop: 15, margin: 0, height: 70 }}>ConU24</h1>
+        <select onChange={handleExchangeChange}>
+          <option value={'Exchange1'}>Exchange 1</option>
+          <option value={'Exchange2'}>Exchange 2</option>
+          <option value={'Exchange3'}>Exchange 3</option>
+        </select>
+        <select onChange={handleSymbolChange}>
+          {symbolList.map((sym) => <option value={sym}>{sym}</option>)}
+        </select>
+        <div style={{ display: 'flex' }}>
+
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: "center", justifyContent: 'center' }}>
+            <div style={{ display: 'flex' }}>
+              <p style={{ color: 'white', fontFamily: 'verdana' }}>Current: </p><p style={{ color: isGreen ? 'green' : 'red' }}>{y[y.length - 1]}</p>
+            </div>
+            <div style={{ display: 'flex', width: '100'}}>
+              <Plot
+                data={[
+                  {
+                    x: x,
+                    y: y,
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: { color: 'white' },
+                  },
+                ]}
+                layout={{
+                  width: 1050, height: 550, title: symbol, titlefont: { size: 32 }, paper_bgcolor: '#333536', plot_bgcolor: '#333536',
+                  xaxis: {
+                    title: 'Time',
+                    tickmode: 'auto',
+                    color: 'white'
+                  }, yaxis: {
+                    color: 'white'
+                  }
+                }}
+              />
+            </div>
+
+          </div>
+        </div>
       </div>
     </>
-   
 
-    
   );
 }
 
