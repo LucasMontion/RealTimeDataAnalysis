@@ -31,14 +31,17 @@ cancel_2 = ex_2.query("MessageType == 'Cancelled'")
 cancel_3 = ex_3.query("MessageType == 'Cancelled'")
 
 
+
 merged_orders_df = pd.concat([order_req_1,order_req_2,order_req_3], axis=0)
 merged_df_sorted = merged_orders_df.sort_values(by='TimeStamp')
 orders_df = merged_df_sorted.reset_index(drop=True)
 
 
 order_dict = {'1': order_req_1, '2':order_req_2, '3':order_req_3}
+
 sym_dict = {'1': sym_1, '2': sym_2, '3': sym_3}
 cancel_dict = {'1': cancel_1, '2': cancel_2, '3': cancel_3}
+
 
 
 # - Global Variables - #
@@ -124,6 +127,7 @@ def get_symbols(Exchange):
     
     return unique_symbols_list
 
+
 @app.route('/set_time/')
 def start_server():
     start = 1704464880 # 01/05/2024
@@ -164,4 +168,4 @@ if __name__ == '__main__':
     volume = set()
     app.debug = True
     app.run()
-    
+
